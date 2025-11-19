@@ -10,6 +10,7 @@ import 'catalogue_screen.dart';
 import 'product_detail_screen.dart';
 import 'cart_screen.dart';
 import 'cart_provider.dart';
+import 'order_history_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +44,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/cart',
       builder: (context, state) => const CartScreen(),
+    ),
+    GoRoute(
+      path: '/order-history',
+      builder: (context, state) => const OrderHistoryScreen(),
     ),
   ],
   redirect: (context, state) {

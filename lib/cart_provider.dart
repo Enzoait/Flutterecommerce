@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 class CartProvider extends ChangeNotifier {
   final List<Map<String, dynamic>> _items = [];
+  final List<List<Map<String, dynamic>>> _orders = [];
 
   List<Map<String, dynamic>> get items => _items;
+  List<List<Map<String, dynamic>>> get orders => _orders;
 
   void add(Map<String, dynamic> product) {
     for (var item in _items) {
@@ -18,7 +20,6 @@ class CartProvider extends ChangeNotifier {
   }
 
   void remove(Map<String, dynamic> product) {
-    // Iterate over a copy of the list to avoid concurrent modification issues.
     for (var item in List.from(_items)) {
       if (item['id'] == product['id']) {
         if ((item['quantity'] ?? 0) > 1) {
@@ -40,6 +41,11 @@ class CartProvider extends ChangeNotifier {
   void clear() {
     _items.clear();
     notifyListeners();
+  }
+
+  void placeOrder() {
+    _orders.add(items.map((item) => Map<String, dynamic>.from(item)).toList());
+    clear();
   }
 
   int get itemCount {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'cart_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'cart_provider.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -64,13 +64,33 @@ class CartScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
                     'Total: \$${cart.totalPrice.toStringAsFixed(2)}',
                     style: Theme.of(context).textTheme.headlineSmall,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      cart.placeOrder();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('La commande a été passée avec succès'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      context.go('/order-history');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      textStyle: const TextStyle(fontSize: 18),
+                    ),
+                    child: const Text('Passer la commande'),
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
+                  TextButton(
                     onPressed: () => cart.clear(),
                     child: const Text('Clear Cart'),
                   ),

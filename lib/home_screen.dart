@@ -24,6 +24,12 @@ class HomeScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
+            onPressed: () => context.go('/order-history'),
+            icon: Badge(
+              child: const Icon(Icons.history),
+            ),
+          ),
+          IconButton(
             onPressed: () => context.go('/cart'),
             icon: Badge(
               label: Text('${cart.itemCount}'),
