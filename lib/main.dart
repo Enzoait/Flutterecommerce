@@ -78,7 +78,43 @@ class MyApp extends StatelessWidget {
         routerConfig: _router,
         title: 'ShopFlutter',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          primarySwatch: Colors.brown,
+          scaffoldBackgroundColor: const Color(0xFFF5F5DC), // Beige
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFFF5F5DC), // Beige
+            primary: const Color(0xFFF5F5DC), // Beige
+            secondary: Colors.brown,
+            brightness: Brightness.light,
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFFF5F5DC), // Beige
+            foregroundColor: Colors.black,
+            elevation: 0,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.brown,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black87),
+            bodyMedium: TextStyle(color: Colors.black87),
+            titleLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: Colors.white.withOpacity(0.5),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.brown),
+            ),
+            labelStyle: const TextStyle(color: Colors.black54),
+          ),
         ),
       ),
     );

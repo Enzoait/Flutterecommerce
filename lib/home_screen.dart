@@ -20,8 +20,8 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F5DC), // Beige
+        foregroundColor: Colors.black,
         actions: [
           IconButton(
             onPressed: () => context.go('/order-history'),
@@ -42,7 +42,11 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Welcome to ShopFlutter, $username.'),
+            const Icon(Icons.shopping_cart, size: 100, color: Colors.black54),
+            const SizedBox(height: 20),
+            Text('Welcome to ShopFlutter, $username.',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                  textAlign: TextAlign.center),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => context.go('/catalogue'),

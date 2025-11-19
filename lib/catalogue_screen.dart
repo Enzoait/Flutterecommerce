@@ -65,8 +65,6 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Catalogue'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
