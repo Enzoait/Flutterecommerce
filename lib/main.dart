@@ -2,9 +2,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
+import 'catalogue_screen.dart';
+import 'product_detail_screen.dart';
+import 'cart_screen.dart';
+import 'cart_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,24 +22,39 @@ void main() async {
 final _router = GoRouter(
   routes: [
     GoRoute(
+      path: '/',
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
-      path: '/home',
-      builder: (context, state) => const HomeScreen(),
+      path: '/catalogue',
+      builder: (context, state) => const CatalogueScreen(),
+    ),
+    GoRoute(
+      path: '/product/:id',
+      builder: (context, state) {
+        final productId = state.pathParameters['id']!;
+        return ProductDetailScreen(productId: productId);
+      },
+    ),
+    GoRoute(
+      path: '/cart',
+      builder: (context, state) => const CartScreen(),
     ),
   ],
   redirect: (context, state) {
     final user = FirebaseAuth.instance.currentUser;
-    final loggingIn = state.matchedLocation == '/login';
+    final onLoginPage = state.uri.path == '/login';
 
     if (user == null) {
-      return loggingIn ? null : '/login';
+      return onLoginPage ? null : '/login';
     }
 
-    if (loggingIn) {
-      return '/home';
+    if (onLoginPage) {
+      return '/';
     }
 
     return null;
@@ -47,11 +67,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: _router,
-      title: 'Sign in to ShopFlutter',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    return ChangeNotifierProvider(
+      create: (context) => CartProvider(),
+      child: MaterialApp.router(
+        routerConfig: _router,
+        title: 'ShopFlutter',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        ),
       ),
     );
   }
