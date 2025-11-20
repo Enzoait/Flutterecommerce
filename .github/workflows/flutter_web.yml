@@ -12,18 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      # Installer Flutter version fixe et régler le safe directory
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
-          cache: false
+          flutter-version: '3.3.10'
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Fix safe directory & Build Flutter Web
+        run: |
+          git config --global --add safe.directory /opt/hostedtoolcache/flutter/stable-3.3.10-x64
+          flutter pub get
+          flutter build web --release
 
-      - name: Build Flutter Web
-        run: flutter build web --release
-
+      # Déploiement sur Vercel
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:
