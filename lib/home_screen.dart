@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'cart_provider.dart';
+import 'viewmodels/cart_view_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,7 +15,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     final username = user?.email?.split('@').first ?? 'User';
-    final cart = Provider.of<CartProvider>(context);
+    final cart = Provider.of<CartViewModel>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -25,9 +25,7 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () => context.go('/order-history'),
-            icon: Badge(
-              child: const Icon(Icons.history),
-            ),
+            icon: const Icon(Icons.history),
           ),
           IconButton(
             onPressed: () => context.go('/cart'),

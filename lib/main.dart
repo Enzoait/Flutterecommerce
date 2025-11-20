@@ -9,22 +9,15 @@ import 'login_screen.dart';
 import 'catalogue_screen.dart';
 import 'product_detail_screen.dart';
 import 'cart_screen.dart';
-import 'cart_provider.dart';
 import 'order_history_screen.dart';
+import 'viewmodels/cart_view_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final cartProvider = CartProvider();
-  await cartProvider.loadOrders();
-  runApp(
-    ChangeNotifierProvider.value(
-      value: cartProvider,
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 final _router = GoRouter(
@@ -79,46 +72,51 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: _router,
-      title: 'ShopFlutter',
-      theme: ThemeData(
-        primarySwatch: Colors.brown,
-        scaffoldBackgroundColor: const Color(0xFFF5F5DC), // Beige
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFF5F5DC), // Beige
-          primary: const Color(0xFFF5F5DC), // Beige
-          secondary: Colors.brown,
-          brightness: Brightness.light,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFF5F5DC), // Beige
-          foregroundColor: Colors.black,
-          elevation: 0,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.brown,
-            foregroundColor: Colors.white,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartViewModel()),
+      ],
+      child: MaterialApp.router(
+        routerConfig: _router,
+        title: 'ShopFlutter',
+        theme: ThemeData(
+          primarySwatch: Colors.brown,
+          scaffoldBackgroundColor: const Color(0xFFF5F5DC), // Beige
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFFF5F5DC), // Beige
+            primary: const Color(0xFFF5F5DC), // Beige
+            secondary: Colors.brown,
+            brightness: Brightness.light,
           ),
-        ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.black87),
-          bodyMedium: TextStyle(color: Colors.black87),
-          titleLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.5),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide.none,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFFF5F5DC), // Beige
+            foregroundColor: Colors.black,
+            elevation: 0,
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: const BorderSide(color: Colors.brown),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.brown,
+              foregroundColor: Colors.white,
+            ),
           ),
-          labelStyle: const TextStyle(color: Colors.black54),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black87),
+            bodyMedium: TextStyle(color: Colors.black87),
+            titleLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: Colors.white.withOpacity(0.5),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: const BorderSide(color: Colors.brown),
+            ),
+            labelStyle: const TextStyle(color: Colors.black54),
+          ),
         ),
       ),
     );

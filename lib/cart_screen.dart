@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'cart_provider.dart';
+import 'viewmodels/cart_view_model.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cart = Provider.of<CartProvider>(context);
+    final cart = Provider.of<CartViewModel>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -26,18 +26,19 @@ class CartScreen extends StatelessWidget {
             child: ListView.builder(
               itemCount: cart.items.length,
               itemBuilder: (context, index) {
-                final product = cart.items[index];
+                final cartItem = cart.items[index];
+                final product = cartItem.product;
                 return ListTile(
-                  leading: Image.network(product['image'], width: 50, height: 50),
-                  title: Text(product['title']),
-                  subtitle: Text('\$${product['price']} x ${product['quantity']}'),
+                  leading: Image.network(product.image, width: 50, height: 50),
+                  title: Text(product.title),
+                  subtitle: Text('\$${product.price} x ${cartItem.quantity}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.remove),
                         onPressed: () {
-                          cart.remove(product);
+                          cart.remove(cartItem);
                         },
                       ),
                       IconButton(
@@ -49,7 +50,7 @@ class CartScreen extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () {
-                          cart.removeItem(product);
+                          cart.removeItem(cartItem);
                         },
                       ),
                     ],

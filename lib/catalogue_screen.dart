@@ -1,34 +1,38 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'cart_provider.dart';
+import 'viewmodels/cart_view_model.dart';
+import 'viewmodels/catalogue_view_model.dart';
 
-class CatalogueScreen extends StatefulWidget {
+class CatalogueScreen extends StatelessWidget {
   const CatalogueScreen({super.key});
 
   @override
-  State<CatalogueScreen> createState() => _CatalogueScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => CatalogueViewModel(),
+      child: const CatalogueView(),
+    );
+  }
 }
 
-class _CatalogueScreenState extends State<CatalogueScreen> {
-  late Future<List<dynamic>> _productsFuture;
-  List<dynamic> _products = [];
-  List<dynamic> _filteredProducts = [];
+class CatalogueView extends StatefulWidget {
+  const CatalogueView({super.key});
+
+  @override
+  State<CatalogueView> createState() => _CatalogueViewState();
+}
+
+class _CatalogueViewState extends State<CatalogueView> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _productsFuture = fetchProducts();
-    _productsFuture.then((products) {
-      setState(() {
-        _products = products;
-        _filteredProducts = products;
-      });
+    _searchController.addListener(() {
+      Provider.of<CatalogueViewModel>(context, listen: false)
+          .filterProducts(_searchController.text);
     });
-    _searchController.addListener(_filterProducts);
   }
 
   @override
@@ -37,30 +41,10 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
     super.dispose();
   }
 
-  void _filterProducts() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredProducts = _products.where((product) {
-        final title = product['title'].toString().toLowerCase();
-        return title.contains(query);
-      }).toList();
-    });
-  }
-
-  Future<List<dynamic>> fetchProducts() async {
-    final url = Uri.parse('https://fakestoreapi.com/products');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load products: ${response.statusCode}');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final cart = Provider.of<CartProvider>(context);
+    final cartViewModel = Provider.of<CartViewModel>(context);
+    final catalogueViewModel = Provider.of<CatalogueViewModel>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -69,14 +53,12 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
         actions: [
           IconButton(
             onPressed: () => context.go('/order-history'),
-            icon: Badge(
-              child: const Icon(Icons.history),
-            ),
+            icon: const Icon(Icons.history),
           ),
           IconButton(
             onPressed: () => context.go('/cart'),
             icon: Badge(
-              label: Text('${cart.itemCount}'),
+              label: Text('${cartViewModel.itemCount}'),
               child: const Icon(Icons.shopping_cart),
             ),
           ),
@@ -88,7 +70,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Search',
                 hintText: 'Search for products by title',
                 prefixIcon: Icon(Icons.search),
@@ -104,32 +86,29 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: FutureBuilder<List<dynamic>>(
-              future: _productsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+            child: Consumer<CatalogueViewModel>(
+              builder: (context, viewModel, child) {
+                if (viewModel.isLoading) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                } else if (viewModel.filteredProducts.isEmpty) {
                   return const Center(child: Text('No products found.'));
                 } else {
                   return ListView.builder(
-                    itemCount: _filteredProducts.length,
+                    itemCount: viewModel.filteredProducts.length,
                     itemBuilder: (context, index) {
-                      final product = _filteredProducts[index];
+                      final product = viewModel.filteredProducts[index];
                       return Card(
                         margin: const EdgeInsets.all(10),
                         child: ListTile(
                           leading: Image.network(
-                            product['image'],
+                            product.image,
                             width: 50,
                             height: 50,
                             fit: BoxFit.cover,
                           ),
-                          title: Text(product['title']),
-                          subtitle: Text('\$${product['price']}'),
-                          onTap: () => context.go('/product/${product['id']}'),
+                          title: Text(product.title),
+                          subtitle: Text('\$${product.price}'),
+                          onTap: () => context.go('/product/${product.id}'),
                         ),
                       );
                     },
