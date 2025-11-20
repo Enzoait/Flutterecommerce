@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ElevatedButton(
             onPressed: () {
               SharePlus.instance.share(
-                  ShareParams(text: 'Come shop at https://example.com')
+                  ShareParams(text: 'Come shop at https://flutterecommerce.vercel.app/')
               );
             },
             child: const Text('Share ShopFlutter'),
