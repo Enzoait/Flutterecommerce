@@ -1,0 +1,29 @@
+name: Flutter CI (without Web Build)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  flutter-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout code
+      - uses: actions/checkout@v3
+
+      # 2. Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.3.10'
+
+      # 3. Install dependencies & run flutter doctor
+      - name: Prepare Flutter Environment
+        run: |
+          git config --global --add safe.directory /opt/hostedtoolcache/flutter/stable-3.3.10-x64
+          flutter channel stable
+          flutter upgrade --force
+          flutter doctor
+          flutter pub get
