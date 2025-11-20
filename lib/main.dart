@@ -17,7 +17,14 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  final cartProvider = CartProvider();
+  await cartProvider.loadOrders();
+  runApp(
+    ChangeNotifierProvider.value(
+      value: cartProvider,
+      child: const MyApp(),
+    ),
+  );
 }
 
 final _router = GoRouter(
@@ -72,49 +79,46 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => CartProvider(),
-      child: MaterialApp.router(
-        routerConfig: _router,
-        title: 'ShopFlutter',
-        theme: ThemeData(
-          primarySwatch: Colors.brown,
-          scaffoldBackgroundColor: const Color(0xFFF5F5DC), // Beige
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFF5F5DC), // Beige
-            primary: const Color(0xFFF5F5DC), // Beige
-            secondary: Colors.brown,
-            brightness: Brightness.light,
+    return MaterialApp.router(
+      routerConfig: _router,
+      title: 'ShopFlutter',
+      theme: ThemeData(
+        primarySwatch: Colors.brown,
+        scaffoldBackgroundColor: const Color(0xFFF5F5DC), // Beige
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFF5F5DC), // Beige
+          primary: const Color(0xFFF5F5DC), // Beige
+          secondary: Colors.brown,
+          brightness: Brightness.light,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF5F5DC), // Beige
+          foregroundColor: Colors.black,
+          elevation: 0,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.brown,
+            foregroundColor: Colors.white,
           ),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFFF5F5DC), // Beige
-            foregroundColor: Colors.black,
-            elevation: 0,
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black87),
+          bodyMedium: TextStyle(color: Colors.black87),
+          titleLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.5),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: BorderSide.none,
           ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.brown,
-              foregroundColor: Colors.white,
-            ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            borderSide: const BorderSide(color: Colors.brown),
           ),
-          textTheme: const TextTheme(
-            bodyLarge: TextStyle(color: Colors.black87),
-            bodyMedium: TextStyle(color: Colors.black87),
-            titleLarge: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: Colors.white.withOpacity(0.5),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              borderSide: const BorderSide(color: Colors.brown),
-            ),
-            labelStyle: const TextStyle(color: Colors.black54),
-          ),
+          labelStyle: const TextStyle(color: Colors.black54),
         ),
       ),
     );

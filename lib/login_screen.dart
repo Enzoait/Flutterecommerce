@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'install_button.dart';
+import 'package:share_plus/share_plus.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -56,6 +58,17 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign in'),
+        actions: [
+          InstallButton(),
+          ElevatedButton(
+            onPressed: () {
+              SharePlus.instance.share(
+                  ShareParams(text: 'Come shop at https://example.com')
+              );
+            },
+            child: const Text('Share ShopFlutter'),
+          ),
+        ],
       ),
       body: Center(
         child: ConstrainedBox(

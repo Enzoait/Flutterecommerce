@@ -1,8 +1,13 @@
+
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CartProvider extends ChangeNotifier {
   final List<Map<String, dynamic>> _items = [];
-  final List<List<Map<String, dynamic>>> _orders = [];
+  List<List<Map<String, dynamic>>> _orders = [];
+
+  CartProvider();
 
   List<Map<String, dynamic>> get items => _items;
   List<List<Map<String, dynamic>>> get orders => _orders;
@@ -43,9 +48,30 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void placeOrder() {
+  Future<void> placeOrder() async {
     _orders.add(items.map((item) => Map<String, dynamic>.from(item)).toList());
+    await _saveOrders();
     clear();
+  }
+
+  Future<void> _saveOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ordersJson = jsonEncode(_orders);
+    await prefs.setString('orders', ordersJson);
+  }
+
+  Future<void> loadOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ordersJson = prefs.getString('orders');
+    if (ordersJson != null) {
+      final decodedOrders = jsonDecode(ordersJson);
+      _orders = (decodedOrders as List)
+          .map((order) => (order as List)
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList())
+          .toList();
+      notifyListeners();
+    }
   }
 
   int get itemCount {

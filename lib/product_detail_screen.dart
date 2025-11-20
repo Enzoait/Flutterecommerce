@@ -4,6 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'cart_provider.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/cupertino.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final String productId;
@@ -16,6 +19,7 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   late Future<Map<String, dynamic>> _productFuture;
+  static final bool isIOS = !kIsWeb && Platform.isIOS;
 
   @override
   void initState() {
@@ -37,28 +41,144 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
-
+    if (isIOS) {
+      return CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            middle: const Text('Product Details'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CupertinoButton(
+                  onPressed: () => context.go('/order-history'),
+                  child: const Icon(CupertinoIcons.time),
+                ),
+                CupertinoButton(
+                  onPressed: () => context.go('/cart'),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      const Icon(CupertinoIcons.shopping_cart),
+                      if (cart.itemCount > 0)
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 12,
+                              minHeight: 12,
+                            ),
+                            child: Text(
+                              '${cart.itemCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              CupertinoButton(
+                onPressed: () => context.go('/catalogue'),
+                child: const Text('Return to the catalogue'),
+              ),
+              const SizedBox(height: 10),
+              FutureBuilder<Map<String, dynamic>>(
+                future: _productFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CupertinoActivityIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData) {
+                    return const Center(child: Text('Product not found.'));
+                  } else {
+                    final product = snapshot.data!;
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Image.network(
+                              product['image'],
+                              height: 200,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            product['title'],
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            '\$${product['price']}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  color: Colors.deepPurple,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(product['description']),
+                          const SizedBox(height: 20),
+                          Center(
+                            child: CupertinoButton.filled(
+                              onPressed: () {
+                                cart.add(product);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Product added to cart!'),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                              child: const Text('Add to cart'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ));
+    }
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product Details'),
-        actions: [
-          IconButton(
-            onPressed: () => context.go('/order-history'),
-            icon: Badge(
-              child: const Icon(Icons.history),
+        appBar: AppBar(
+          title: const Text('Product Details'),
+          actions: [
+            IconButton(
+              onPressed: () => context.go('/order-history'),
+              icon: const Icon(Icons.history),
             ),
-          ),
-          IconButton(
-            onPressed: () => context.go('/cart'),
-            icon: Badge(
-              label: Text('${cart.itemCount}'),
-              child: const Icon(Icons.shopping_cart),
+            IconButton(
+              onPressed: () => context.go('/cart'),
+              icon: Badge(
+                label: Text('${cart.itemCount}'),
+                child: const Icon(Icons.shopping_cart),
+              ),
             ),
-          ),
-        ],
-      ),
-      body:
-        Column(
+          ],
+        ),
+        body: Column(
           children: [
             const SizedBox(height: 10),
             ElevatedButton(
@@ -97,10 +217,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         const SizedBox(height: 10),
                         Text(
                           '\$${product['price']}',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Colors.deepPurple,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    color: Colors.deepPurple,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 10),
                         Text(product['description']),
@@ -126,7 +247,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               },
             ),
           ],
-        )
-    );
+        ));
   }
 }
