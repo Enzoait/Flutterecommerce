@@ -15,7 +15,7 @@ class CartItem {
 
   Map<String, dynamic> toJson() {
     return {
-      'product': product, // This will need a toJson method in Product
+      'product': product,
       'quantity': quantity,
     };
   }
