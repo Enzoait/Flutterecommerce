@@ -32,7 +32,7 @@ jobs:
       - name: Build Flutter Web
         run: flutter build web --release
 
-      # 5. Déployer sur Vercel
+      # 5. Déployer sur Vercel!
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:
