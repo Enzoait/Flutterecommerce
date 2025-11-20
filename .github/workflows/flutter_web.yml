@@ -1,4 +1,4 @@
-name: Build Flutter Web
+name: Build & Deploy Flutter Web to Vercel
 
 on:
   push:
@@ -10,20 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Récupérer le code
       - uses: actions/checkout@v3
 
-      # Installer Flutter version fixe et régler le safe directory
-      - uses: subosito/flutter-action@v2
+      # 2. Installer Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.3.10'
 
-      - name: Fix safe directory & Build Flutter Web
+      # 3. Fix safe directory, upgrade Flutter, et installer les dépendances
+      - name: Prepare Flutter Environment
         run: |
           git config --global --add safe.directory /opt/hostedtoolcache/flutter/stable-3.3.10-x64
+          flutter channel stable
+          flutter upgrade --force
+          flutter doctor
           flutter pub get
-          flutter build web --release
 
-      # Déploiement sur Vercel
+      # 4. Build Flutter Web
+      - name: Build Flutter Web
+        run: flutter build web --release
+
+      # 5. Déployer sur Vercel
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:
